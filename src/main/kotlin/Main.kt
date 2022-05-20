@@ -45,7 +45,7 @@ fun main() {
                 demand.add(randomDemand(avgValue,criticalValue))
             }
             if (mod == 2) {
-                demand.add(cummulitiveDistributionFunction((avgValue+criticalValue) - (avgValue-criticalValue)))
+                demand.add( cummulitiveDistributionFunction(avgValue,criticalValue))
             }
         }
 
@@ -125,15 +125,24 @@ fun randomDemand(avgValue : Int, criticalValue: Int ): Int {
     return (minRandValue + rand.nextDouble() * multiply).toInt()
 }
 
-fun cummulitiveDistributionFunction(k: Int): Int {
-    val lambda = 10.0
+fun cummulitiveDistributionFunction(avgValue : Int, criticalValue: Int ): Int {
+    val lambda = 20.0
     val e = E.pow(-lambda)
     var sum = 0.0
-    for (i in 0 .. k) {
-        val n = lambda.pow(i).div(factorial(i))
+    val map = mutableMapOf<Int,Double>()
+    for (i in avgValue- criticalValue .. avgValue + criticalValue) {
+        val n = lambda.pow(i).div(factorial(i)) * e
         sum += n
+        map.put(i,n)
     }
-    return (e * sum).toInt()
+    map.toSortedMap()
+    while (true) {
+        for (i in map) {
+            if(Random().nextDouble() * sum < i.value) {
+                return i.key
+            }
+        }
+    }
 }
 
 private fun factorial(f : Int) : Double {
